@@ -7,8 +7,5 @@
 
 If anyones wants to see what it looks like click these links below
 
-## Original Script by Unknown Ghostz#9131
-https://github.com/unknownghostz6/westerntheme-mdt
-
 ## V2
 1. Telegrams implemented (Create, Delete)
