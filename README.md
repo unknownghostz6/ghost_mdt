@@ -11,4 +11,4 @@ If anyones wants to see what it looks like click these links below
 https://github.com/unknownghostz6/westerntheme-mdt
 
 ## V2
-1. Notes implemented (Create, Delete)
+1. Telegrams implemented (Create, Delete)
