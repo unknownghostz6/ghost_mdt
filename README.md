@@ -9,6 +9,6 @@
 https://github.com/i3ucky/bucky_mdt 
 
 ## v2.1
-1. notes are now displayed correctly
+1. Telegrams are now displayed correctly
 ## V2
-1. Notes implemented (Create, Delete)
+1. Telegrams implemented (Create, Delete)
