@@ -29,4 +29,4 @@ server_scripts {
     'sv_mdt.lua',
 }
 
-version '2.1'
+version '2.2'
