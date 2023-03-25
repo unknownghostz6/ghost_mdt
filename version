@@ -26,18 +26,18 @@ Version.checkRelease = function (resourcename, repo)
 
         if uptodate then
             print("^1---------------------------------------------------------------------------^0\n" ..
-            " bucky_mdt -  Archive System for VORPCore\n" ..
+            " ghost_mdt -  Archive System for VORPCore\n" ..
             "^1---------------------------------------------------------------------------^0\n")    
             print('^2✅Up to Date! (Current Version '..current.version..')^0')
         elseif overdate then
             print("^1---------------------------------------------------------------------------^0\n" ..
-            " bucky_mdt -  Archive System for VORPCore\n" ..
+            " ghost_mdt -  Archive System for VORPCore\n" ..
             "^1---------------------------------------------------------------------------^0\n")       
             print('^3⚠️Unsupported! (Version '..current.version..')^0')
             print('^4Current Version ^2('..latest.version..') ^3<'..latest.url..'>^0')
         else
             print("^1---------------------------------------------------------------------------^0\n" ..
-            " bucky_mdt -  Archive System for VORPCore\n" ..
+            " ghost_mdt -  Archive System for VORPCore\n" ..
             "^1---------------------------------------------------------------------------^0\n")     
             print('^1❌Outdated! (Version '..current.version..')^0')
             print('^4New Version ^2('..latest.version..') ^3<'..latest.url..'>^0')
