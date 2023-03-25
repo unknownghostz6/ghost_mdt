@@ -27,6 +27,7 @@ shared_scripts {
 server_scripts {
     'config.lua',
     'sv_mdt.lua',
+    'version.lua',
 }
 
 --======================================= VERSION CHECK =====================================================--
