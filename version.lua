@@ -1,4 +1,4 @@
-Version = {}
+Versio = {}
 
 Version.checkRelease = function (resourcename, repo)
     repo = repo:gsub("https://github.com/", "")
