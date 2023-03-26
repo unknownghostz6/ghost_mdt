@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `fine_types` (
        PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `mdt_notes` (
+CREATE TABLE `mdt_telegrams` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`title` varchar(255) DEFAULT NULL,
 	`incident` longtext DEFAULT NULL,
