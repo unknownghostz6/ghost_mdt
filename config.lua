@@ -9,10 +9,10 @@ Config = {}
 Config.Command = "aa"
 
 --[[ Allowed Jobs ]]--
-Config.Jobs = {"rhsheriff","nhsheriff","wesheriff","lmsheriff","nasheriff","marshal","ranger"}
+Config.Jobs = {"police","sheriff","marshal","ranger"}
 
 --[[ Offices ]]--
-Config.UseOffice = false
+Config.UseOffice = false -- Still a work in progress so dont use
 Config.Open = { 
 	['key'] = 0xCEFD9220, -- E
 	['text'] = "~e~[E] ~q~to open Archive",
@@ -23,7 +23,34 @@ Config.Office = {
     },
     [2] = {
         coords={-325.81, 819.8, 118.0}, -- Valentine 2
-    }
+    },
+    [3] = {
+        coords={-762.25, -1266.68, 44.15}, -- Blackwater
+    },
+    [4] = {
+        coords={-1807.1, -348.27, 164.76}, -- Strawberry
+    },
+    [5] = {
+        coords={-1810.71, -353.21, 161.54}, -- Strawberry Downstairs
+    },
+    [6] = {
+        coords={-325.81, 819.8, 118.0}, -- Rhodes
+    },
+    [7] = {
+        coords={2510.12, -1308.78, 49.05}, -- Saint Denis Middle Desk
+    },
+    [8] = {
+        coords={2495.93, -1306.78, 49.05}, -- Saint Denis Cells
+    },
+    [9] = {
+        coords={2907.39, 1313.98, 45.04}, -- Annesburg
+    },
+    [10] = {
+        coords={-3624.39, -2601.61, -13.24}, -- Armadillo
+    },
+    [11] = {
+        coords={-5531.15, -2930.18, -1.26}, -- Tumbleweed
+    },
 }
 
 --[[ Notifys ]]--
