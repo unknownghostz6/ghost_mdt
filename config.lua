@@ -12,7 +12,7 @@ Config.Command = "aa"
 Config.Jobs = {"police","sheriff","marshal","ranger"}
 
 --[[ Offices ]]--
-Config.UseOffice = false -- Still a work in progress so dont use
+Config.UseOffice = true
 Config.Open = { 
 	['key'] = 0xCEFD9220, -- E
 	['text'] = "~e~[E] ~q~to open Archive",
