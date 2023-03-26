@@ -23,7 +23,7 @@ RegisterCommand(""..Config.Command.."", function(source, args)
 						for w = 1, #warrants do
 							warrants[w].charges = json.decode(warrants[w].charges)
 						end
-						exports.ghmattimysql:execute("SELECT * FROM (SELECT * FROM `mdt_notes` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(note)
+						exports.ghmattimysql:execute("SELECT * FROM (SELECT * FROM `mdt_telegrams` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(note)
 							for n = 1, #note do
 								note[n].charges = json.decode(note[n].charges)
 							end
@@ -42,8 +42,8 @@ RegisterServerEvent("ghost_mdt:getOffensesAndOfficer")
 AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
     local _source = source
 	local User = Vorpcore.getUser(_source)
-    local Character = User.getUsedCharacter
-	local officername = (Character.firstname.. " " ..Character.lastname)
+    Character = User.getUsedCharacter
+	officername = (Character.firstname.. " " ..Character.lastname)
 
 	local charges = {}
 	exports.ghmattimysql:execute('SELECT * FROM fine_types', {}, function(fines)
@@ -203,7 +203,7 @@ end)
 
 RegisterServerEvent("ghost_mdt:deleteNote")
 AddEventHandler("ghost_mdt:deleteNote", function(id)
-	exports.oxmysql:execute('DELETE FROM `mdt_notes` WHERE `id` = ?', {id})
+	exports.oxmysql:execute('DELETE FROM `mdt_telegrams` WHERE `id` = ?', {id})
 	TriggerClientEvent("ghost_mdt:sendNotification", source, Config.Notify['9'])
 end)
 
@@ -240,7 +240,7 @@ AddEventHandler("ghost_mdt:submitNote", function(data)
 	local officername = (Character.firstname.. " " ..Character.lastname)
 	charges = json.encode(data.charges)
 	data.date = os.date('%m-%d-%Y %H:%M:%S', os.time())
-	exports.oxmysql:insert('INSERT INTO `mdt_notes` ( `title`, `incident`, `author`, `date`) VALUES (?, ?, ?, ?)', {data.title, data.note, officername, data.date,}, function(id)
+	exports.oxmysql:insert('INSERT INTO `mdt_telegrams` ( `title`, `incident`, `author`, `date`) VALUES (?, ?, ?, ?)', {data.title, data.note, officername, data.date,}, function(id)
 		TriggerEvent("ghost_mdt:getNoteDetailsById", id, usource)
 		TriggerClientEvent("ghost_mdt:sendNotification", usource, Config.Notify['8'])
 	end)
@@ -319,7 +319,7 @@ RegisterServerEvent("ghost_mdt:getNoteDetailsById")
 AddEventHandler("ghost_mdt:getNoteDetailsById", function(query, _source)
 	if _source then source = _source end
 	local usource = source
-	exports.ghmattimysql:execute("SELECT * FROM `mdt_notes` WHERE `id` = ?", {query}, function(result)
+	exports.ghmattimysql:execute("SELECT * FROM `mdt_telegrams` WHERE `id` = ?", {query}, function(result)
 		if result and result[1] then
 			TriggerClientEvent("ghost_mdt:returnNoteDetails", usource, result[1])
 		else
