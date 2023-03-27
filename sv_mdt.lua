@@ -53,7 +53,6 @@ AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
 		end
 
 	     TriggerClientEvent("ghost_mdt:returnOffensesAndOfficer", usource, charges, officername)
-	     end)
        end)
 end)
 
