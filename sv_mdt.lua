@@ -1,12 +1,12 @@
-Vorpcore = {}
+VORPCore = {}
 
 TriggerEvent("getCore", function(core)
-    Vorpcore = core
+    VORPCore = core
 end)
 
 RegisterCommand(""..Config.Command.."", function(source, args)
     local _source = source
-	local User = Vorpcore.getUser(_source)
+	local User = VORPCore.getUser(_source)
     local Character = User.getUsedCharacter
     local job = Character.job
 	local jobgrade = Character.jobGrade
@@ -41,12 +41,11 @@ end)
 RegisterServerEvent("ghost_mdt:getOffensesAndOfficer")
 AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
     local usource = source
-    local User = Vorpcore.getUser(usource)
-    Character = User.getUsedCharacter
-	if lastname ~= nil then
-	    officername = (Character.firstname.. " " ..Character.lastname)
-	    local charges = {}
-	    exports.ghmattimysql:execute('SELECT * FROM fine_types', {}, function(fines)
+	local Character = VORPCore.getUser(usource).getUsedCharacter
+	local officername = (Character.firstname.. " " ..Character.lastname)
+
+	local charges = {}
+	exports.ghmattimysql:execute('SELECT * FROM fine_types', {}, function(fines)
 	    for j = 1, #fines do
 		if fines[j].category == 0 or fines[j].category == 1 or fines[j].category == 2 or fines[j].category == 3 then
 		    table.insert(charges, fines[j])
@@ -55,7 +54,7 @@ AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
 
 	     TriggerClientEvent("ghost_mdt:returnOffensesAndOfficer", usource, charges, officername)
 	     end)
-       end
+       end)
 end)
 
 RegisterServerEvent("ghost_mdt:performOffenderSearch")
@@ -210,7 +209,7 @@ end)
 
 RegisterServerEvent("ghost_mdt:submitNewReport")
 AddEventHandler("ghost_mdt:submitNewReport", function(data)
-	local usource = source
+	local User = VORPCore.getUser(usource)
 	local User = Vorpcore.getUser(usource)
     local Character = User.getUsedCharacter
 	local officername = (Character.firstname.. " " ..Character.lastname)
@@ -279,7 +278,7 @@ end)
 RegisterServerEvent("ghost_mdt:submitNewWarrant")
 AddEventHandler("ghost_mdt:submitNewWarrant", function(data)
 	local usource = source
-	local User = Vorpcore.getUser(usource)
+	local User = VORPCore.getUser(usource)
     local Character = User.getUsedCharacter
 	local officername = (Character.firstname.. " " ..Character.lastname)
 
