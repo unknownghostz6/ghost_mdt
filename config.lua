@@ -37,7 +37,7 @@ Config.Office = {
         coords={-325.81, 819.8, 118.0}, -- Rhodes
     },
     [7] = {
-        coords={2510.12, -1308.78, 49.05}, -- Saint Denis Middle Desk
+        coords={2510.12, -1308.78, 49.05}, -- Saint Denis front desk
     },
     [8] = {
         coords={2495.93, -1306.78, 49.05}, -- Saint Denis Cells
