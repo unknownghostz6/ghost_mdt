@@ -1,4 +1,4 @@
-For vorp_core
+For vorp_core framework
 
 ## How to Install?
 
