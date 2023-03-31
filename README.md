@@ -1,4 +1,4 @@
-For vorp_core and gum_core
+For vorp_core
 
 ## How to Install?
 
