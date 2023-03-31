@@ -1,3 +1,5 @@
+For vorp_core and gum_core
+
 ## How to Install?
 
 1. Make sure to ensure ghost_mdt on your resources list. Also disable any other mdt script you are using.
