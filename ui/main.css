@@ -194,7 +194,7 @@
   max-width: 50%;
   overflow-y: auto;
   margin-left: 5%;
-  height: auto;
+  height: 60vh;
   text-align: left;
   user-select: none;
 }
