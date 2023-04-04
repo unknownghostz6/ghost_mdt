@@ -1,5 +1,3 @@
-var language = {}
-
 const mdtApp = new Vue({
     el: "#container",
     data: {
@@ -144,8 +142,7 @@ const mdtApp = new Vue({
                 $("#submit-report").addClass("nav-active");
             } else if (page == "Submit Note") {
                 $("#submit-note").addClass("nav-active");
-            }
-            
+	    }  
         },
         closeMDT() {
             $.post('http://ghost_mdt/close', JSON.stringify({}));
@@ -543,7 +540,7 @@ document.onreadystatechange = () => {
                 mdtApp.homepage.note = event.data.note;
                 mdtApp.homepage.warrants = event.data.warrants;
                 mdtApp.officer.name = event.data.officer;
-				mdtApp.officer.rank = event.data.rank + ' ';
+		mdtApp.officer.rank = event.data.rank + ' ';
                 if (mdtApp.officer.department != event.data.department) {
                     mdtApp.officer.department = event.data.department;
                     if (event.data.department == 'police') {
@@ -605,4 +602,3 @@ function WarrantTimer() {
 }
 
 WarrantTimer()
-
