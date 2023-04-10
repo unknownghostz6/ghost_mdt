@@ -1,26 +1,38 @@
-local RSGCore = exports['rsg-core']:GetCoreObject()
+VORPCore = {}
+
+TriggerEvent("getCore", function(core)
+    VORPCore = core
+end)
+
+---------------- WORK IN PROGRESS FOR ITEM USE TO OPEN MDT --------------------
+--[[VorpInv = exports.vorp_inventory:vorp_inventoryApi()
+
+local itemName = "mdtbook"
+VorpInv.RegisterUsableItem("mdtbook", function(data)
+	TriggerClientEvent('ghost_mdt:toggleVisibilty', function(reports, warrants, officer, job, grade, note)
+end)]]
+---------------- END OF WORK IN PROGRESS PART --------------------------------
 
 RegisterCommand(""..Config.Command.."", function(source, args)
     local _source = source
-	local tablex = {}
-    local _source = source
-	local xPlayer = RSGCore.Functions.GetPlayer(_source)
-	local group = RSGCore.Functions.GetPermission(_source)
-    local cid = xPlayer.PlayerData.citizenid
-	local officername = xPlayer.PlayerData.charinfo.firstname .. ' ' .. xPlayer.PlayerData.charinfo.lastname
-	local job_access = false
+	local User = VORPCore.getUser(_source)
+    local Character = User.getUsedCharacter
+    local job = Character.job
+	local jobgrade = Character.jobGrade
+	local officername = (Character.firstname.. " " ..Character.lastname)
+    local job_access = false
         for k,v in pairs(Config.Jobs) do
-    if xPlayer.PlayerData.job.name == v then
-		job_access = true
-				exports.oxmysql:fetch("SELECT * FROM (SELECT * FROM `mdt_reports` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(reports)
+            if job == v then
+                job_access = true
+				exports.ghmattimysql:execute("SELECT * FROM (SELECT * FROM `mdt_reports` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(reports)
 					for r = 1, #reports do
 						reports[r].charges = json.decode(reports[r].charges)
 					end
-					exports.oxmysql:fetch("SELECT * FROM (SELECT * FROM `mdt_warrants` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(warrants)
+					exports.ghmattimysql:execute("SELECT * FROM (SELECT * FROM `mdt_warrants` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(warrants)
 						for w = 1, #warrants do
 							warrants[w].charges = json.decode(warrants[w].charges)
 						end
-						exports.oxmysql:fetch("SELECT * FROM (SELECT * FROM `mdt_telegrams` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(note)
+						exports.ghmattimysql:execute("SELECT * FROM (SELECT * FROM `mdt_telegrams` ORDER BY `id` DESC LIMIT 6) sub ORDER BY `id` DESC", {}, function(note)
 							for n = 1, #note do
 								note[n].charges = json.decode(note[n].charges)
 							end
@@ -35,15 +47,25 @@ RegisterCommand(""..Config.Command.."", function(source, args)
         end
 end)
 
+---------- USABLE MDT ITEM --------------
+--[[local itemCount = VorpInv.getItemCount(source, itemName, metadata)
+local itemName = "mdtbook"
+		VorpInv.RegisterUsableItem(itemName, function(data)
+  		VORPInv.CloseInv(data.source)
+  	TriggerClientEvent('ghost_mdt:toggleVisibilty', _source, reports, warrants, officername, job, jobgrade, note)
+  --print(data.source) -- player using the item
+  --print(data.label)  -- item label
+end)]]
+--------- END OF USABLE MDT ITEM ---------------
+
 RegisterServerEvent("ghost_mdt:getOffensesAndOfficer")
 AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
 	local usource = source
-	local xPlayer = RSGCore.Functions.GetPlayer(usource)
-	--local officername = (Character.firstname.. " " ..Character.lastname)
-	local officername = xPlayer.PlayerData.charinfo.firstname .. ' ' .. xPlayer.PlayerData.charinfo.lastname
+	local Character = VORPCore.getUser(usource).getUsedCharacter
+	local officername = (Character.firstname.. " " ..Character.lastname)
 
 	local charges = {}
-	exports.oxmysql:fetch('SELECT * FROM fine_types', {}, function(fines)
+	exports.ghmattimysql:execute('SELECT * FROM fine_types', {}, function(fines)
 		for j = 1, #fines do
 			if fines[j].category == 0 or fines[j].category == 1 or fines[j].category == 2 or fines[j].category == 3 then
 				table.insert(charges, fines[j])
@@ -54,40 +76,22 @@ AddEventHandler("ghost_mdt:getOffensesAndOfficer", function()
 	end)
 end)
 
-
 RegisterServerEvent("ghost_mdt:performOffenderSearch")
 AddEventHandler("ghost_mdt:performOffenderSearch", function(query)
 	local usource = source
 	local matches = {}
-	exports.oxmysql:query("SELECT * FROM `players` WHERE `charinfo` LIKE ?", {string.lower('%'..query..'%')}, function(result) -- % wildcard, needed to search for all alike results
+
+	exports.ghmattimysql:execute("SELECT * FROM `characters` WHERE LOWER(`firstname`) LIKE @query OR LOWER(`lastname`) LIKE @query OR CONCAT(LOWER(`firstname`), ' ', LOWER(`lastname`)) LIKE @query", {
+		['@query'] = string.lower('%'..query..'%')
+	}, function(result)
 
 		for index, data in ipairs(result) do
-			if data.charinfo then
-				local player = json.decode(data.charinfo)
-				local metadata = json.decode(data.metadata)
-				local core = RSGCore.Functions.GetPlayerByCitizenId(data.citizenid)
-
-				if core then
-					player = core['PlayerData']['charinfo']
-					metadata = core['PlayerData']['metadata']
-				end
-
-				player.id = data.id
-				player.metadata = metadata
-				player.citizenid = data.citizenid
-				table.insert(matches, player)
-			end
+			table.insert(matches, data)
 		end
 
 		TriggerClientEvent("ghost_mdt:returnOffenderSearchResults", usource, matches)
 	end)
 end)
-
-
----------------------------------------------------------------------------------------
-
-
-
 
 RegisterServerEvent("ghost_mdt:getOffenderDetails")
 AddEventHandler("ghost_mdt:getOffenderDetails", function(offender)
@@ -95,7 +99,7 @@ AddEventHandler("ghost_mdt:getOffenderDetails", function(offender)
 
 	--print(offender.charidentifier)
 
-    exports.oxmysql:fetch('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {offender.charidentifier}, function(result)
+    exports.ghmattimysql:execute('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {offender.charidentifier}, function(result)
 
 		if result[1] then
             offender.notes = result[1].notes
@@ -107,7 +111,7 @@ AddEventHandler("ghost_mdt:getOffenderDetails", function(offender)
 			offender.bail = false
 		end
 
-        exports.oxmysql:fetch('SELECT * FROM `user_convictions` WHERE `char_id` = ?', {offender.charidentifier}, function(convictions)
+        exports.ghmattimysql:execute('SELECT * FROM `user_convictions` WHERE `char_id` = ?', {offender.charidentifier}, function(convictions)
 
             if convictions[1] then
                 offender.convictions = {}
@@ -117,7 +121,7 @@ AddEventHandler("ghost_mdt:getOffenderDetails", function(offender)
                 end
             end
 
-            exports.oxmysql:fetch('SELECT * FROM `mdt_warrants` WHERE `char_id` = ?', {offender.charidentifier}, function(warrants)
+            exports.ghmattimysql:execute('SELECT * FROM `mdt_warrants` WHERE `char_id` = ?', {offender.charidentifier}, function(warrants)
 
                 if warrants[1] then
                     offender.haswarrant = true
@@ -134,8 +138,8 @@ AddEventHandler("ghost_mdt:getOffenderDetailsById", function(char_id)
     local usource = source
 	print(char_id)
 
-    --exports.oxmysql:fetch('SELECT * FROM `charinfo` WHERE `citizenid` = ?', {char_id}, function(result)
-    exports.oxmysql:fetch('SELECT * FROM `players` WHERE `id` = ?', {char_id}, function(result)
+    exports.ghmattimysql:execute('SELECT * FROM `characters` WHERE `charidentifier` = ?', {char_id}, function(result)
+
         local offender = result[1]
 
         if not offender then
@@ -144,7 +148,7 @@ AddEventHandler("ghost_mdt:getOffenderDetailsById", function(char_id)
             return
         end
     
-        exports.oxmysql:fetch('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {char_id}, function(result)
+        exports.ghmattimysql:execute('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {char_id}, function(result)
 
 			if result[1] then
                 offender.notes = result[1].notes
@@ -156,7 +160,7 @@ AddEventHandler("ghost_mdt:getOffenderDetailsById", function(char_id)
 				offender.bail = false
 			end
 
-            exports.oxmysql:fetch('SELECT * FROM `user_convictions` WHERE `char_id` = ?', {char_id}, function(convictions) 
+            exports.ghmattimysql:execute('SELECT * FROM `user_convictions` WHERE `char_id` = ?', {char_id}, function(convictions) 
 
                 if convictions[1] then
                     offender.convictions = {}
@@ -166,7 +170,7 @@ AddEventHandler("ghost_mdt:getOffenderDetailsById", function(char_id)
                     end
                 end
 
-                exports.oxmysql:fetch('SELECT * FROM `mdt_warrants` WHERE `char_id` = ?', {char_id}, function(warrants)
+                exports.ghmattimysql:execute('SELECT * FROM `mdt_warrants` WHERE `char_id` = ?', {char_id}, function(warrants)
                     
                     if warrants[1] then
                         offender.haswarrant = true
@@ -183,7 +187,7 @@ RegisterServerEvent("ghost_mdt:saveOffenderChanges")
 AddEventHandler("ghost_mdt:saveOffenderChanges", function(charidentifier, changes, identifier)
 	local usource = source
 
-	exports.oxmysql:fetch('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {charidentifier}, function(result)
+	exports.ghmattimysql:execute('SELECT * FROM `user_mdt` WHERE `char_id` = ?', {charidentifier}, function(result)
 		if result[1] then
 			exports.oxmysql:execute('UPDATE `user_mdt` SET `notes` = ?, `mugshot_url` = ?, `bail` = ? WHERE `char_id` = ?', {changes.notes, changes.mugshot_url, changes.bail, charidentifier})
 		else
@@ -225,11 +229,9 @@ end)
 RegisterServerEvent("ghost_mdt:submitNewReport")
 AddEventHandler("ghost_mdt:submitNewReport", function(data)
 	local usource = source
-	local tablex = {}
-    local _source = source
-	local xPlayer = RSGCore.Functions.GetPlayer(usource)
-	local cid = xPlayer.PlayerData.citizenid
-	local officername = xPlayer.PlayerData.charinfo.firstname .. ' ' .. xPlayer.PlayerData.charinfo.lastname
+	local User = VORPCore.getUser(usource)
+    local Character = User.getUsedCharacter
+	local officername = (Character.firstname.. " " ..Character.lastname)
 
 	charges = json.encode(data.charges)
 	data.date = os.date('%m-%d-%Y %H:%M:%S', os.time())
@@ -239,7 +241,7 @@ AddEventHandler("ghost_mdt:submitNewReport", function(data)
 	end)
 
 	for offense, count in pairs(data.charges) do
-		exports.oxmysql:fetch('SELECT * FROM `user_convictions` WHERE `offense` = ? AND `char_id` = ?', {offense, data.char_id}, function(result)
+		exports.ghmattimysql:execute('SELECT * FROM `user_convictions` WHERE `offense` = ? AND `char_id` = ?', {offense, data.char_id}, function(result)
 			if result[1] then
 				exports.oxmysql:execute('UPDATE `user_convictions` SET `count` = ? WHERE `offense` = ? AND `char_id` = ?', {data.char_id, offense, count + 1})
 			else
@@ -252,11 +254,9 @@ end)
 RegisterServerEvent("ghost_mdt:submitNote")
 AddEventHandler("ghost_mdt:submitNote", function(data)
 	local usource = source
-	local tablex = {}
-    local _source = source
-	local xPlayer = RSGCore.Functions.GetPlayer(usource)
-	--local cid = xPlayer.PlayerData.citizenid
-	local officername = xPlayer.PlayerData.charinfo.firstname .. ' ' .. xPlayer.PlayerData.charinfo.lastname
+	local User = VORPCore.getUser(usource)
+    local Character = User.getUsedCharacter
+	local officername = (Character.firstname.. " " ..Character.lastname)
 	charges = json.encode(data.charges)
 	data.date = os.date('%m-%d-%Y %H:%M:%S', os.time())
 	exports.oxmysql:insert('INSERT INTO `mdt_telegrams` ( `title`, `incident`, `author`, `date`) VALUES (?, ?, ?, ?)', {data.title, data.note, officername, data.date,}, function(id)
@@ -269,7 +269,7 @@ RegisterServerEvent("ghost_mdt:performReportSearch")
 AddEventHandler("ghost_mdt:performReportSearch", function(query)
 	local usource = source
 	local matches = {}
-	exports.oxmysql:fetch("SELECT * FROM `mdt_reports` WHERE `id` LIKE @query OR LOWER(`title`) LIKE @query OR LOWER(`name`) LIKE @query OR LOWER(`author`) LIKE @query or LOWER(`charges`) LIKE @query", {
+	exports.ghmattimysql:execute("SELECT * FROM `mdt_reports` WHERE `id` LIKE @query OR LOWER(`title`) LIKE @query OR LOWER(`name`) LIKE @query OR LOWER(`author`) LIKE @query or LOWER(`charges`) LIKE @query", {
 		['@query'] = string.lower('%'..query..'%') -- % wildcard, needed to search for all alike results
 	}, function(result)
 
@@ -285,7 +285,7 @@ end)
 RegisterServerEvent("ghost_mdt:getWarrants")
 AddEventHandler("ghost_mdt:getWarrants", function()
 	local usource = source
-	exports.oxmysql:fetch("SELECT * FROM `mdt_warrants`", {}, function(warrants)
+	exports.ghmattimysql:execute("SELECT * FROM `mdt_warrants`", {}, function(warrants)
 		for i = 1, #warrants do
 			warrants[i].expire_time = ""
 			warrants[i].charges = json.decode(warrants[i].charges)
@@ -297,11 +297,9 @@ end)
 RegisterServerEvent("ghost_mdt:submitNewWarrant")
 AddEventHandler("ghost_mdt:submitNewWarrant", function(data)
 	local usource = source
-	local tablex = {}
-    local _source = source
-	local xPlayer = RSGCore.Functions.GetPlayer(usource)
-	--local cid = xPlayer.PlayerData.citizenid
-	local officername = xPlayer.PlayerData.charinfo.firstname .. ' ' .. xPlayer.PlayerData.charinfo.lastname
+	local User = VORPCore.getUser(usource)
+    local Character = User.getUsedCharacter
+	local officername = (Character.firstname.. " " ..Character.lastname)
 
 	data.charges = json.encode(data.charges)
 	data.author = officername
@@ -325,7 +323,7 @@ RegisterServerEvent("ghost_mdt:getReportDetailsById")
 AddEventHandler("ghost_mdt:getReportDetailsById", function(query, _source)
 	if _source then source = _source end
 	local usource = source
-	exports.oxmysql:fetch("SELECT * FROM `mdt_reports` WHERE `id` = ?", {query}, function(result)
+	exports.ghmattimysql:execute("SELECT * FROM `mdt_reports` WHERE `id` = ?", {query}, function(result)
 		if result and result[1] then
 			result[1].charges = json.decode(result[1].charges)
 			TriggerClientEvent("ghost_mdt:returnReportDetails", usource, result[1])
@@ -340,7 +338,7 @@ RegisterServerEvent("ghost_mdt:getNoteDetailsById")
 AddEventHandler("ghost_mdt:getNoteDetailsById", function(query, _source)
 	if _source then source = _source end
 	local usource = source
-	exports.oxmysql:fetch("SELECT * FROM `mdt_telegrams` WHERE `id` = ?", {query}, function(result)
+	exports.ghmattimysql:execute("SELECT * FROM `mdt_telegrams` WHERE `id` = ?", {query}, function(result)
 		if result and result[1] then
 			TriggerClientEvent("ghost_mdt:returnNoteDetails", usource, result[1])
 		else
