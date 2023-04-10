@@ -6,7 +6,7 @@
 Config = {}
 
 --[[ Command ]]--
-Config.Command = "aa"
+Config.Command = "mdt"
 
 --[[ Allowed Jobs ]]--
 Config.Jobs = {"ranger","marshal","sheriff","police"}
